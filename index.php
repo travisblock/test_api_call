@@ -10,10 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (!isset($request->keyword)) {
         return false;
     }
-    header('Content-Type: application/json');
 
     $keyword =  $request->keyword;
-    $api = new Api($keyword);
+    $api = new Api($keyword, $request->country, $request->language);
     return $api->handleApi($request->namespace);
 }
 ?>
@@ -32,12 +31,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <form method="POST" action="" id="form">
         <input name="keyword" type="search">
         <button>Submit</button>
+        <br><br>
+        <div class="dropdown">
+            <label>Country</label>
+            <select name="country">
+                <option value="us">US</option>
+                <option value="fr">FR</option>
+                <option value="id">ID</option>
+            </select>
+            <span style="margin-left:10px"></span>
+            <label>Language</label>
+            <select name="language">
+                <option value="en">EN</option>
+                <option value="fr">FR</option>
+                <option value="id">ID</option>
+            </select>
+        </div>
     </form>
     <div id="result"></div>
     <script>
         const before = <?= json_encode((new Api())->before) ?>;
         const form = document.querySelector('#form');
         const input = document.querySelector('input[name="keyword"]');
+        const country = document.querySelector('input[name="country"]');
+        const language = document.querySelector('input[name="language"]');
         const result = document.querySelector('#result');
 
         form.addEventListener('submit', e => {
@@ -57,6 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         },
                         body: JSON.stringify({
                             keyword: keywd,
+                            language: language,
+                            country: country,
                             namespace: before[i]
                         })
                     }).then(response => response.json())
@@ -64,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         var final = JSON.stringify(result);
                         final = final.replaceAll('@', '');
                         final = JSON.parse(final);
-                        final = final.CompleteSuggestion;
+                        // final = final.CompleteSuggestion;
                         let li = '';
                         for (x = 0; x < final.length; x++) {
                             var word = final[x].suggestion.attributes.data;
