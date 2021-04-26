@@ -101,10 +101,7 @@ class Api
 
         $client         = new Client();
         $responseXml    = null;
-        $response       = null;
-        $rawjson        = null;
-        $replacer1      = ']}{"CompleteSuggestion":[';
-        $replacer2      = ']}{}{"CompleteSuggestion":[';
+        $rawArray       = [];
 
         foreach ($this->finalApi[$keyword] as $url) {
 
@@ -112,14 +109,18 @@ class Api
                 'headers' => ['Accept' => 'application/xml']
             ]);
             $responseXml = simplexml_load_string($request->getBody()->getContents());
-            $rawjson .= json_encode($responseXml);
+            $json = json_encode($responseXml);
+            $json = json_decode($json, TRUE);
+            if (isset($json['CompleteSuggestion'])) {
+                foreach ($json['CompleteSuggestion'] as $array) {
+                    array_push($rawArray, $array);
+                }
+            }
         }
 
-        $rawjson = str_replace($replacer1, ',', $rawjson);
-        $rawjson = str_replace($replacer2, ',', $rawjson);
-
-        // $json = json_decode($rawjson, TRUE);
-        echo $rawjson;
+        header('Content-Type: application/json');
+        echo json_encode($rawArray);
+        return;
     }
 
     /**
