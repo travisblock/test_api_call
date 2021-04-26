@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>API Call</title>
 </head>
 
 <body>
@@ -42,9 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         form.addEventListener('submit', e => {
             e.preventDefault();
+            result.innerHTML = '';
             let keywd = input.value;
             let html = '';
             for (i = 0; i < before.length; i++) {
+                html += '<ul id="' + before[i] + '">' + before[i] + '</ul>';
+                result.innerHTML = html;
+
                 fetch(window.location.href, {
                         method: 'POST',
                         headers: {
@@ -57,19 +61,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         })
                     }).then(response => response.json())
                     .then(result => {
-                        console.log(result);
+                        var final = JSON.stringify(result);
+                        final = final.replaceAll('@', '');
+                        final = JSON.parse(final);
+                        final = final.CompleteSuggestion;
+                        let li = '';
+                        for (x = 0; x < final.length; x++) {
+                            var word = final[x].suggestion.attributes.data;
+                            let id = word.split(' ')[0];
+                            document.querySelector('#' + id).innerHTML = document.querySelector('#' + id).innerHTML + '<li>' + word + '</li>';
+                        }
                     })
             }
         })
-        // const handleSubmit = (e) => {
-        //     e.preventDefault();
-
-        //     let {
-        //         keyword
-        //     } = e.currentTarget.value;
-
-        //     console.log(keyword);
-        // }
     </script>
 </body>
 
