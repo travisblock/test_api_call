@@ -3,7 +3,6 @@
 namespace Http;
 
 use GuzzleHttp\Client;
-use Throwable;
 
 class Api
 {
@@ -24,7 +23,7 @@ class Api
         'like',
         'or',
         'versus',
-        'vs'
+        'vs',
     ];
 
     public $after = [
@@ -34,7 +33,7 @@ class Api
         'near',
         'to',
         'with',
-        'without'
+        'without',
     ];
 
     private $api = 'https://www.api.okomaps.com/getdata.php?q=';
@@ -44,36 +43,33 @@ class Api
 
     public function __construct(string $keyword = '', $country = 'us', $language = 'en')
     {
-        $this->keyword  = $keyword;
-        $this->country  = $country;
+        $this->keyword = $keyword;
+        $this->country = $country;
         $this->language = $language;
         /** Merge all alphabetical */
-        $this->after    = array_merge($this->after, range('a', 'z'));
+        $this->after = array_merge($this->after, range('a', 'z'));
     }
 
     /**
-     * Add word before keyword
-     * 
+     * Add word before keyword.
      */
     public function handleBefore()
     {
         foreach ($this->before as $before) {
-            $this->beforeApi[$before] = $before . ' ' . $this->keyword;
+            $this->beforeApi[$before] = $before.' '.$this->keyword;
         }
 
         return $this;
     }
 
     /**
-     * Add word after keyword
-     * 
+     * Add word after keyword.
      */
     public function handleAfter()
     {
         foreach ($this->beforeApi as $bkey => $bvalue) {
-
             foreach ($this->after as $after) {
-                $this->finalApi[$bkey][] = $this->api . urlencode($bvalue . ' ' . $after) . '&gl=' . $this->country . '&hl=' . $this->language;
+                $this->finalApi[$bkey][] = $this->api.urlencode($bvalue.' '.$after).'&gl='.$this->country.'&hl='.$this->language;
             }
         }
 
@@ -81,8 +77,7 @@ class Api
     }
 
     /**
-     * Merge before and after API
-     * 
+     * Merge before and after API.
      */
     public function mergeApi()
     {
@@ -92,25 +87,23 @@ class Api
     }
 
     /**
-     * Make API call
-     * 
+     * Make API call.
      */
     public function handleApi($keyword = 'can')
     {
         $this->mergeApi();
 
-        $client         = new Client();
-        $responseXml    = null;
-        $rawArray       = [];
+        $client = new Client();
+        $responseXml = null;
+        $rawArray = [];
 
         foreach ($this->finalApi[$keyword] as $url) {
-
             $request = $client->request('GET', $url, [
-                'headers' => ['Accept' => 'application/xml']
+                'headers' => ['Accept' => 'application/xml'],
             ]);
             $responseXml = simplexml_load_string($request->getBody()->getContents());
             $json = json_encode($responseXml);
-            $json = json_decode($json, TRUE);
+            $json = json_decode($json, true);
             if (isset($json['CompleteSuggestion'])) {
                 foreach ($json['CompleteSuggestion'] as $array) {
                     array_push($rawArray, $array);
@@ -120,12 +113,11 @@ class Api
 
         header('Content-Type: application/json');
         echo json_encode($rawArray);
-        return;
+
     }
 
     /**
-     * Getter
-     * 
+     * Getter.
      */
     public function __get($property)
     {

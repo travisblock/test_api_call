@@ -11,8 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         return false;
     }
 
-    $keyword =  $request->keyword;
+    $keyword = $request->keyword;
     $api = new Api($keyword, $request->country, $request->language);
+
     return $api->handleApi($request->namespace);
 }
 ?>
